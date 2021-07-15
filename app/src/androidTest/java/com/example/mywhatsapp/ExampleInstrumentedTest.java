@@ -1,4 +1,4 @@
-package com.example.whatsapp;
+package com.example.mywhatsapp;
 
 import android.content.Context;
 
