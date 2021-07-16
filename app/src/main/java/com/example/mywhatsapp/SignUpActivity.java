@@ -2,10 +2,13 @@ package com.example.mywhatsapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.mywhatsapp.Models.Users;
 import com.example.mywhatsapp.databinding.ActivitySignUpBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -21,6 +24,7 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     // For registering username and password into database
     FirebaseDatabase database;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,23 +35,42 @@ public class SignUpActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
+        progressDialog = new ProgressDialog(SignUpActivity.this);
+        progressDialog.setTitle("Creating Account");
+        progressDialog.setMessage("We're creating your account.");
 
         binding.btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressDialog.show();
                 // Create user with email and password
                 mAuth.createUserWithEmailAndPassword(
                         binding.editTextEmailAddress.getText().toString(), binding.editTextPassword.getText().toString()
                 ).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(Task<AuthResult> task) {
+                        progressDialog.dismiss();
                         if (task.isSuccessful()) {
-                            Toast.makeText(SignUpActivity.this, "User Created Succesfully.", Toast.LENGTH_SHORT).show();
+
+                            Users user = new Users(binding.editTextUserName.getText().toString(),
+                                    binding.editTextEmailAddress.getText().toString(),binding.editTextPassword.getText().toString());
+                            String id = task.getResult().getUser().getUid();
+                            database.getReference().child("Users").child(id).setValue(user);
+
+                            Toast.makeText(SignUpActivity.this, "User Created Successfully.", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(SignUpActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
                     }
                 });
+            }
+        });
+
+        binding.textViewAlreadyHaveAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SignUpActivity.this,SignInActivity.class);
+                startActivity(intent);
             }
         });
     }
