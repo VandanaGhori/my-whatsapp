@@ -96,6 +96,7 @@
         android:orientation="horizontal">
 
         <EditText
+            android:id="@+id/EditTextMessageBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginStart="8dp"
@@ -103,11 +104,11 @@
             android:layout_weight="1"
             android:background="@drawable/bg_edit_text"
             android:hint="Type a message"
-            android:inputType="textPersonName"
+            android:inputType="textPersonName|textMultiLine"
             android:paddingStart="8dp" />
 
         <ImageView
-            android:id="@+id/imageView4"
+            android:id="@+id/SendMessageButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:paddingLeft="3dp"

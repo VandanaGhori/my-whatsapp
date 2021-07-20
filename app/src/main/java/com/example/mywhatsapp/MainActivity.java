@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         mAuth = FirebaseAuth.getInstance();
 
-        getSupportActionBar().hide();
+        //menugetSupportActionBar().hide();
 
         //getKeyHash();
 
@@ -93,6 +93,9 @@ public class MainActivity extends AppCompatActivity {
                 mAuth.signOut();
                 Intent intent = new Intent(this,SignInActivity.class);
                 startActivity(intent);
+                break;
+            case R.id.groupChat:
+
                 break;
         }
         return super.onOptionsItemSelected(item);

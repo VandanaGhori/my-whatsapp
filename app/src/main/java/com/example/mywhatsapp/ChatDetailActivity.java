@@ -13,11 +13,16 @@ import android.view.View;
 import com.example.mywhatsapp.Adapters.ChatAdapter;
 import com.example.mywhatsapp.Models.MessageModel;
 import com.example.mywhatsapp.databinding.ActivityChatDetailBinding;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ChatDetailActivity extends AppCompatActivity {
 
@@ -31,6 +36,7 @@ public class ChatDetailActivity extends AppCompatActivity {
         binding = ActivityChatDetailBinding.inflate(getLayoutInflater());
         database = FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();
+        setContentView(binding.getRoot());
 
         getSupportActionBar().hide();
         binding.myToolbar.getNavigationIcon().setTint(Color.WHITE);
@@ -45,12 +51,12 @@ public class ChatDetailActivity extends AppCompatActivity {
         // Authenticated that means logged in user is a sender
         final String senderId = mAuth.getUid();
 
-        // Other than Logged in user is considered as a receiver
-        String receiveId = getIntent().getStringExtra("userId");
-
         Intent intent = getIntent();
         String userName = intent.getStringExtra("userName");
         String profilePic = intent.getStringExtra("profilePic");
+
+        // Other than Logged in user is considered as a receiver
+        String receiverId = intent.getStringExtra("userId");
 
         binding.textViewUserName.setText(userName);
         Picasso.get().load(profilePic).placeholder(R.drawable.user).into(binding.profileImage);
@@ -65,7 +71,67 @@ public class ChatDetailActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         binding.myRecyclerView.setLayoutManager(layoutManager);
 
-        setContentView(binding.getRoot());
+        // For generating Id for particular chat in the form of ReceiverId+SenderId
+
+        // When user is logged in and wants to use WhatsApp he/she must be sender
+        final String senderRoom = senderId + receiverId;
+        final String receiverRoom = receiverId + senderId;
+
+        // get data from the node name "chats"
+        database.getReference().child("chats")
+                .child(senderRoom)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        // For clearing old data from the recyclerview and later it will add data with the latest typed message
+                        messageModels.clear();
+
+                        for(DataSnapshot snapshot1 : snapshot.getChildren()) {
+                            MessageModel model = snapshot1.getValue(MessageModel.class);
+                            messageModels.add(model);
+                        }
+
+                        chatAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+
+        binding.SendMessageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String message = binding.EditTextMessageBox.getText().toString();
+
+                // When user types a message new message has been passed to MessageModel for storing it into firebase database along with time
+                final MessageModel model = new MessageModel(senderId,message);
+                model.setTimeStamp(new Date().getTime());
+                binding.EditTextMessageBox.setText("");
+
+                // getReference is used for storing anything into the database.
+                // push method is used to create a node into firebase tree
+                // This will save message into firebase for sender node and then after same message is store into receiver node
+                database.getReference().child("chats").child(senderRoom)
+                        .push()
+                        .setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        database.getReference().child("chats").child(receiverRoom)
+                                .push()
+                                .setValue(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
     }
 
     @Override
