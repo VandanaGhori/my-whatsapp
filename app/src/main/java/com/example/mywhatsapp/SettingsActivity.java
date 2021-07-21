@@ -25,6 +25,7 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.net.URI;
+import java.util.HashMap;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -51,13 +52,16 @@ public class SettingsActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
 
-        // For fetching already set profile picture from the firebase database
+        // For fetching already set profile picture, UserName and Status from the firebase database
         database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         Users user = snapshot.getValue(Users.class);
                         Picasso.get().load(user.getProfilePic()).placeholder(R.drawable.user).into(binding.profileImage);
+
+                        binding.editTextUserName.setText(user.getUserName());
+                        binding.editTextStatus.setText(user.getStatus());
                     }
 
                     @Override
@@ -65,6 +69,24 @@ public class SettingsActivity extends AppCompatActivity {
 
                     }
                 });
+
+        // Username and About details are being saved into database by clicking on Save Button
+        binding.saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String userName = binding.editTextUserName.getText().toString();
+                String status = binding.editTextStatus.getText().toString();
+
+                // whenever we need to update any String value in Firebase we use HashMap
+                HashMap<String, Object> obj = new HashMap<>();
+                obj.put("userName", userName);
+                obj.put("status", status);
+
+                database.getReference().child("Users").child(FirebaseAuth.getInstance().getUid())
+                        .updateChildren(obj);
+                Toast.makeText(SettingsActivity.this, "Profile Updated.", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         binding.addProfilePicButton.setOnClickListener(new View.OnClickListener() {
             @Override

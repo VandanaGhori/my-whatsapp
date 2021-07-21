@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.example.mywhatsapp.Adapters.UsersAdapter;
 import com.example.mywhatsapp.Models.Users;
 import com.example.mywhatsapp.databinding.FragmentChatsBinding;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -56,7 +57,11 @@ public class ChatsFragment extends Fragment {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Users users = dataSnapshot.getValue(Users.class);
                     users.setUserId(dataSnapshot.getKey());
-                    usersArrayList.add(users);
+
+                    // Logged in user does not show into the userList's on Chats Screen
+                    if(!users.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                        usersArrayList.add(users);
+                    }
                 }
                 usersAdapter.notifyDataSetChanged();
             }
