@@ -87,7 +87,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.settings:
-                Toast.makeText(this, "Settings Clicked.", Toast.LENGTH_SHORT).show();
+                Intent intent2 = new Intent(this,SettingsActivity.class);
+                startActivity(intent2);
+                //Toast.makeText(this, "Settings Clicked.", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.logout:
                 mAuth.signOut();
