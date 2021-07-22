@@ -72,6 +72,12 @@ public class GroupChatActivity extends AppCompatActivity {
         binding.SendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Showing error message on editTextView
+                if(binding.EditTextMessageBox.getText().toString().isEmpty()) {
+                    binding.EditTextMessageBox.setError("Please type any message.");
+                    return;
+                }
+
                 final String message = binding.EditTextMessageBox.getText().toString();
 
                 // Store latest typed message into model and also store the latest time

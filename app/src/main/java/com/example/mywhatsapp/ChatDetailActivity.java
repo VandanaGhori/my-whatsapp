@@ -64,7 +64,7 @@ public class ChatDetailActivity extends AppCompatActivity {
         // Showing and passing the data to the RecyclerView
         final ArrayList<MessageModel> messageModels = new ArrayList<>();
 
-        final ChatAdapter chatAdapter = new ChatAdapter(messageModels,this,receiverId);
+        final ChatAdapter chatAdapter = new ChatAdapter(messageModels, this, receiverId);
         binding.myRecyclerView.setAdapter(chatAdapter);
 
         // Dynamically add the layout manager to the ChatDetailActivity for RecyclerView and showing the content into it
@@ -86,7 +86,7 @@ public class ChatDetailActivity extends AppCompatActivity {
                         // For clearing old data from the recyclerview and later it will add data with the latest typed message
                         messageModels.clear();
 
-                        for(DataSnapshot snapshot1 : snapshot.getChildren()) {
+                        for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                             MessageModel model = snapshot1.getValue(MessageModel.class);
                             // For getting unique message Id for deleting particular message when user clicks on it.
                             model.setMessageId(snapshot1.getKey());
@@ -106,10 +106,17 @@ public class ChatDetailActivity extends AppCompatActivity {
         binding.SendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // Showing error message on editTextView
+                if (binding.EditTextMessageBox.getText().toString().isEmpty()) {
+                    binding.EditTextMessageBox.setError("Please type any message.");
+                    return;
+                }
+
                 String message = binding.EditTextMessageBox.getText().toString();
 
                 // When user types a message new message has been passed to MessageModel for storing it into firebase database along with time
-                final MessageModel model = new MessageModel(senderId,message);
+                final MessageModel model = new MessageModel(senderId, message);
                 model.setTimeStamp(new Date().getTime());
                 binding.EditTextMessageBox.setText("");
 
