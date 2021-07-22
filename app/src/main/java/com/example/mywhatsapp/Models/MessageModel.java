@@ -3,7 +3,7 @@ package com.example.mywhatsapp.Models;
 public class MessageModel {
     // uId is either the Sender or Receiver
     String uId;
-    String messageContent;
+    String messageContent, messageId;
     Long timeStamp;
 
     public MessageModel(String uId, String messageContent, Long timeStamp) {
@@ -19,6 +19,14 @@ public class MessageModel {
 
     // For firebase we need to create an empty constructor
     public MessageModel() {
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     public String getuId() {

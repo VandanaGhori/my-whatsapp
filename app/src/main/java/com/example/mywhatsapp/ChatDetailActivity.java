@@ -64,7 +64,7 @@ public class ChatDetailActivity extends AppCompatActivity {
         // Showing and passing the data to the RecyclerView
         final ArrayList<MessageModel> messageModels = new ArrayList<>();
 
-        final ChatAdapter chatAdapter = new ChatAdapter(messageModels,this);
+        final ChatAdapter chatAdapter = new ChatAdapter(messageModels,this,receiverId);
         binding.myRecyclerView.setAdapter(chatAdapter);
 
         // Dynamically add the layout manager to the ChatDetailActivity for RecyclerView and showing the content into it
@@ -88,6 +88,8 @@ public class ChatDetailActivity extends AppCompatActivity {
 
                         for(DataSnapshot snapshot1 : snapshot.getChildren()) {
                             MessageModel model = snapshot1.getValue(MessageModel.class);
+                            // For getting unique message Id for deleting particular message when user clicks on it.
+                            model.setMessageId(snapshot1.getKey());
                             messageModels.add(model);
                         }
 
